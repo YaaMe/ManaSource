@@ -1,7 +1,4 @@
-const { CachingTransport } = require('api/transport');
-const ParityConnector = require('api/parity');
-const { hex2int } = require('utils');
-const { createStore, applyMiddleware, combineReducers } = require('redux');
+const store = require('store');
 
 const PARITY_WS = 'ws://127.0.0.1:8546/';
 const testMiddleware = store => next => action => {
@@ -17,34 +14,13 @@ const getMiddleware = config => {
   };
 };
 
-const test = (state = {}, action) => {
-  console.log('reducer');
-  if (/@/.test(action.type)) {
-    console.log(action.type);
-  }
-  switch (action.type) {
-  case 'CONNECT':
-    if (state.connector) {
-      console.warning('connector exists');
-      return state;
-    }
-    return {
-      ...state,
-      connector: new ParityConnector(new CachingTransport(PARITY_WS))
-    };
-  default: return state;
-  };
-};
-const reducers = combineReducers({
-  test
-});
 const main = async () => {
   console.log('run main');
-  const store = applyMiddleware(
-    getMiddleware('testConfig')
-  )(createStore)(reducers);
   const connect = {
-    type: 'CONNECT'
+    type: 'CONNECT',
+    data: {
+      url: PARITY_WS
+    }
   };
   const action = {
     type: 'TEST',
@@ -52,7 +28,12 @@ const main = async () => {
   };
   console.log('dispatch action');
   store.dispatch(connect);
-  store.dispatch({ type: '@sign' });
+  store.dispatch({
+    type: '@#sign',
+    data: {
+      tx: '0x000'
+    }
+  });
 };
 
 main().catch(error => {
