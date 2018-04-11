@@ -1,0 +1,14 @@
+version: '3'
+services:
+  parity-stable:
+    image: parity/parity:stable
+    ports:
+      - 8180:8180
+      - 8545:8545
+      - 8546:8546
+      - 30303:30303
+    command:
+      --chain=kovan
+      --ws-interface=all
+    volumes:
+      - ~/.local/share/io.parity.ethereum/docker/:/root/.local/share/io.parity.ethereum/
