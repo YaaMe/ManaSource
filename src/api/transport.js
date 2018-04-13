@@ -176,7 +176,7 @@ class RpcTransport {
 
         console.error('Disconnected from the Parity node!');
 
-        await pause(1000);
+        await pause(5000);
 
         this.connect().then(resolve, reject);
       });

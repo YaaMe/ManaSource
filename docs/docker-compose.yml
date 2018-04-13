@@ -8,7 +8,11 @@ services:
       - 8546:8546
       - 30303:30303
     command:
+      ui
       --chain=kovan
+      --ui-interface=all
+      --ws-hosts=all
+      --ws-origins=all
       --ws-interface=all
     volumes:
-      - ~/.local/share/io.parity.ethereum/docker/:/root/.local/share/io.parity.ethereum/
+      - ~/.local/share/io.parity.ethereum//:/root/.local/share/io.parity.ethereum/

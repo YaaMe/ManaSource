@@ -1,5 +1,5 @@
-const reducers = require('reducer');
-const middleware = require('middleware');
+const reducers = require('reducers');
+const middleware = require('middlewares');
 // const { batchDispatchMiddleware } = require('redux-batched-actions');
 const { applyMiddleware, createStore } = require('redux');
 

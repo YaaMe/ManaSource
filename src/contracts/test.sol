@@ -1,0 +1,3 @@
+contract x {
+  function g() {}
+}
