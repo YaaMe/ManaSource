@@ -18,7 +18,7 @@ const main = async () => {
     $step: ['step-1', 'step-2'],
     data: {}
   };
-
+  console.log('start dispatch action');
   store.dispatch(action);
   // let so = solc.compile(contract);
 // 

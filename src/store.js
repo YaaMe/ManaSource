@@ -22,15 +22,19 @@ const options = {
   'second': secondMiddleware
 };
 
-const higherOrderMiddleware = options => store => next => action => {
-  Object.keys(options).forEach(key => action[`$${key}`] ? options[key]);
-    
+const higherOrderMiddleware = services => store => next => action => {
+  let chain = [];
+  console.log('higher onder middleware');
+  
+  chain = [firstMiddleware, secondMiddleware];
+  return chain;
 };
 
 module.exports = createStore(
   reducers,
   applyMiddleware(
-//    batchDispatchMiddleware,
+    //    batchDispatchMiddleware,
+    higherOrderMiddleware(options),
     ...middleware
   )
 );
