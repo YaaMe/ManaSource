@@ -9,7 +9,18 @@ function compiler(path) {
   return solc.compile(contract);
 };
 
+const middleware = store => next => action => {
+  console.log('compile middleware');
+  next(action);
+};
+
+
+const a = (s) => {
+  return 1;
+}
+
 module.exports = store => next => action => {
+  // return middleware;
   if (/@compiler/.test(action.type)) {
     console.log('===compile===>', action);
     action.data.compile = compiler(action.data.file);

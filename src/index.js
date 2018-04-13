@@ -15,10 +15,11 @@ const Contract = require('api/contract');
 const main = async () => {
   const action = {
     type: 'TEST',
+    $step: ['step-1', 'step-2'],
     data: {}
   };
 
-
+  store.dispatch(action);
   // let so = solc.compile(contract);
 // 
 //   console.log(so.contracts[':x'].bytecode == remix2);
@@ -45,7 +46,7 @@ const main = async () => {
     fileName: 'test.sol',
     contractName: 'x'
   });
-  store.dispatch(connect(PARITY_WS));
+  // store.dispatch(connect(PARITY_WS));
   async function send() {
     const { connector: { parityConnector } } = store.getState();
     const testContract = new Contract(parityConnector, '', abi);
@@ -66,7 +67,7 @@ const main = async () => {
 
   }
   setTimeout(() => {
-    send();
+    // send();
   }, 1000);
   console.log(abi);
   const pack = {
