@@ -1,7 +1,6 @@
 const { privateToAddress } = require('ethereumjs-util');
-const privateKey =
-      Buffer.from('234a5f6c29135031bdf8faf0fc39ceafee3d71a60d7d865c57ade0ceac33f247', 'hex');
-const address = `0x${privateToAddress(privateKey).toString('hex')}`;
+
+
 
 const store = require('store');
 const solc = require('solc');
@@ -15,33 +14,53 @@ const Contract = require('api/contract');
 const main = async () => {
   const action = {
     type: 'TEST',
-    $step: ['step-1', 'step-2'],
+    $stream: [
+      () => ({ type: 'step-1' }),
+      async () => ({ type: 'step-2' }),
+      async () => ({ type: 'step-3' }),
+      () => ({ type: 'step-4' }),
+    ],
     data: {}
   };
   console.log('start dispatch action');
-  store.dispatch(action);
+  // store.dispatch(action);
   // let so = solc.compile(contract);
-// 
-//   console.log(so.contracts[':x'].bytecode == remix2);
-//   console.log('=============');
-//   console.log(remix2);
-//   console.log(so.contracts[':x'].bytecode);
+  // 
+  //   console.log(so.contracts[':x'].bytecode == remix2);
+  //   console.log('=============');
+  //   console.log(remix2);
+  //   console.log(so.contracts[':x'].bytecode);
   //   console.log(optcode == so.contracts[':x'].opcode);
   const initBatch = batchActions[
     connect(PARITY_WS)
   ];
-  const batchAction = batchActions([{
-    type: '@test',
-    data: {
-      tx: '0x00'
-    }
-  },{
-    type: '@signer',
-    data: {
-      tx: '0x000'
-    }
-  }], 'TEST_ACTION');
-  // store.dispatch(batchAction);
+
+  const solAction = {
+    type: 'DEPLOY',
+    $stream: [
+      () => ({
+        type: 'COMPILE_SOLC',
+        $compile: {
+          file: 'test.sol',
+          contractName: 'x'
+        }
+      }),
+      ({$compile: { data}}) => ({
+        type: 'SIGNER_TX',
+        $signer: {
+          data
+        }
+      }),
+      ({$signer: { result }}) => ({
+        type: 'CALL_ETH',
+        $call: {
+          method: 'sendTx',
+          tx: result
+        }
+      })
+    ]
+  };
+  store.dispatch(solAction);
   const { data, abi } = compiler({
     fileName: 'test.sol',
     contractName: 'x'

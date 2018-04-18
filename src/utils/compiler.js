@@ -15,7 +15,7 @@ function compiler({ fileName, contractName }) {
   };
 };
 
-const middleware = store => next => action => {
+const compileMiddleware = store => next => action => {
   if (/@compiler/.test(action.type)) {
     console.log('===compile===>', action);
     // action.data.compile = compiler(action.data.file);
@@ -27,5 +27,5 @@ const middleware = store => next => action => {
 
 module.exports = {
   compiler,
-  middleware
+  compileMiddleware
 };
