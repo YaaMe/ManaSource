@@ -7,7 +7,7 @@ const solc = require('solc');
 const { connect } = require('actions/connect');
 const { batchActions } = require('redux-batched-actions');
 const { compiler } = require('utils/compiler');
-const PARITY_WS = 'ws://127.0.0.1:8546/';
+const PARITY_WS = 'http://127.0.0.1:8545/';
 const EthereumTx = require('ethereumjs-tx');
 const Contract = require('api/contract');
 
@@ -49,15 +49,21 @@ const main = async () => {
       }),
       async ({$compile: { data }}) => {
         const { connector } = store.getState();
-        const gasPrice = `0x${connector.gasPrice.toString(16)}`;
+        const gasPrice = await connector.eth.getGasPrice();
+        console.log(gasPrice);
         const options = {
           from: address,
           gasPrice,
           value: '0x0',
           data
         };
-        const gasLimit = await connector.estimateGas(options);
-        const nonce = await connector.nextNonce(address);
+        // const gasLimit = 10000;
+        // const nonce = 2;
+        const gasLimit = await connector.eth.estimateGas(options);
+        const nonce = await connector.eth.getTransactionCount(address);
+        // const nonce = await connector.nextNonce(address);
+        console.log(gasLimit);
+        console.log(nonce);
         return {
           type: 'SIGNER_TX',
           $signer: {
