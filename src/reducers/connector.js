@@ -3,7 +3,6 @@ const ParityConnector = require('api/parity');
 const { TYPE } = require('actions/connect');
 
 module.exports = (state = {}, action) => {
-  console.log('-------=>', action.type);
   switch (action.type) {
   case TYPE.INIT:
     if (state.connector) {

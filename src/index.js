@@ -1,7 +1,7 @@
 const { privateToAddress } = require('ethereumjs-util');
 
 
-
+const { address } = require('config');
 const store = require('store');
 const solc = require('solc');
 const { connect } = require('actions/connect');
@@ -34,7 +34,9 @@ const main = async () => {
   const initBatch = batchActions[
     connect(PARITY_WS)
   ];
-
+  const getJson = () => new Promise((resolv) => {
+    setTimeout(() => resolv(3333), 3000);
+  });
   const solAction = {
     type: 'DEPLOY',
     $stream: [
@@ -45,13 +47,27 @@ const main = async () => {
           contractName: 'x'
         }
       }),
-      ({$compile: { data}}) => ({
-        type: 'SIGNER_TX',
-        $signer: {
+      async ({$compile: { data }}) => {
+        const { connector } = store.getState();
+        const gasPrice = `0x${connector.gasPrice.toString(16)}`;
+        const options = {
+          from: address,
+          gasPrice,
+          value: '0x0',
           data
-        }
-      }),
-      ({$signer: { result }}) => ({
+        };
+        const gasLimit = await connector.estimateGas(options);
+        const nonce = await connector.nextNonce(address);
+        return {
+          type: 'SIGNER_TX',
+          $signer: {
+            ...options,
+            gasLimit,
+            nonce
+          }
+        };
+      },
+      async ({$signer: { result }}) => ({
         type: 'CALL_ETH',
         $call: {
           method: 'sendTx',
@@ -60,46 +76,19 @@ const main = async () => {
       })
     ]
   };
-  store.dispatch(solAction);
+
   const { data, abi } = compiler({
     fileName: 'test.sol',
     contractName: 'x'
   });
-  // store.dispatch(connect(PARITY_WS));
-  async function send() {
-    const { connector: { parityConnector } } = store.getState();
-    const testContract = new Contract(parityConnector, '', abi);
-    const pack = {
-      nonce: 2,
-      from: address,
-      value: '0x0',
-      gasPrice: 100000,
-      gasLimit: 200000,
-      data
-    };
-    const tx = new EthereumTx(pack);
-    tx.sign(privateKey);
-    const serializedTx = `0x${tx.serialize().toString('hex')}`;
-    console.log(serializedTx);
-    // const txHash = await parityConnector.sendTx(serializedTx);
-    // console.log('==hash==> ', txHash);
+  store.dispatch(connect(PARITY_WS));
 
+  async function send() {
+    store.dispatch(solAction);
   }
   setTimeout(() => {
-    // send();
+    send();
   }, 1000);
-  console.log(abi);
-  const pack = {
-    from: 'address',
-    gas: 1000000,
-    data
-  };
-  // store.dispatch({
-  //   type: '@compiler',
-  //   data: {
-  //     file: 'test.sol'
-  //   }
-  // });
 };
 
 main().catch(error => {
