@@ -31,17 +31,16 @@ const main = async () => {
   const solAction = {
     type: 'DEPLOY',
     $stream: [
-      () => ({
-        type: 'COMPILE_SOLC',
-        $compile: {
-          file: 'test.sol',
-          contractName: 'x'
-        }
-      }),
+      () => {
+        const { file, contractName } = require('config');
+        return {
+          type: 'COMPILE_SOLC',
+          $compile: { file, contractName }
+        };
+      },
       async ({$compile: { data }}) => {
         const { connector } = store.getState();
         const gasPrice = await connector.eth.getGasPrice();
-        console.log(gasPrice);
         const options = {
           from: address,
           gasPrice,
@@ -50,8 +49,6 @@ const main = async () => {
         };
         const gasLimit = await connector.eth.estimateGas(options);
         const nonce = await connector.eth.getTransactionCount(address);
-        console.log(gasLimit);
-        console.log(nonce);
         return {
           type: 'SIGNER_TX',
           $signer: {
@@ -63,7 +60,7 @@ const main = async () => {
       },
       async ({$signer: { result }}) => {
         const { connector } = store.getState();
-        console.log('ready to send: ', result);
+        console.log('ready to send ');
         const txid = await connector.eth.sendSignedTransaction(result);
         console.log('tx: ', txid);
         return {
