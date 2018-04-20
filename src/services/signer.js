@@ -7,20 +7,8 @@ const EthereumTx = require('ethereumjs-tx');
 
 
 const middleware = store => next => action => {
-  console.log('signer middleware', action.$signer);
   const data = action.$signer;
   const tx = new EthereumTx(data);
-  // const pack = {
-  //   nonce: 2,
-  //   from: address,
-  //   value: '0x0',
-  //   gasPrice: 100000,
-  //   gasLimit: 200000,
-  //   data
-  // };
-  
-  // const gasLimit = await connector.estimateGas(options);
-  // const nonce = await connector.nextNonce(options.from);
   tx.sign(privateKeyBuffer);
   const serializedTx = `0x${tx.serialize().toString('hex')}`;
   action.$signer.result = serializedTx;

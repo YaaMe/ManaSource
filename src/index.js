@@ -22,15 +22,6 @@ const main = async () => {
     ],
     data: {}
   };
-  console.log('start dispatch action');
-  // store.dispatch(action);
-  // let so = solc.compile(contract);
-  // 
-  //   console.log(so.contracts[':x'].bytecode == remix2);
-  //   console.log('=============');
-  //   console.log(remix2);
-  //   console.log(so.contracts[':x'].bytecode);
-  //   console.log(optcode == so.contracts[':x'].opcode);
   const initBatch = batchActions[
     connect(PARITY_WS)
   ];
@@ -57,11 +48,8 @@ const main = async () => {
           value: '0x0',
           data
         };
-        // const gasLimit = 10000;
-        // const nonce = 2;
         const gasLimit = await connector.eth.estimateGas(options);
         const nonce = await connector.eth.getTransactionCount(address);
-        // const nonce = await connector.nextNonce(address);
         console.log(gasLimit);
         console.log(nonce);
         return {
@@ -69,17 +57,23 @@ const main = async () => {
           $signer: {
             ...options,
             gasLimit,
-            nonce
+            nonce: nonce+1
           }
         };
       },
-      async ({$signer: { result }}) => ({
-        type: 'CALL_ETH',
-        $call: {
-          method: 'sendTx',
-          tx: result
-        }
-      })
+      async ({$signer: { result }}) => {
+        const { connector } = store.getState();
+        console.log('ready to send: ', result);
+        const txid = await connector.eth.sendSignedTransaction(result);
+        console.log('tx: ', txid);
+        return {
+          type: 'CALL_ETH',
+          $call: {
+            method: 'sendTx',
+            tx: result
+          }
+        };
+      }
     ]
   };
 

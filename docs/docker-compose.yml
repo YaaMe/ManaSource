@@ -11,6 +11,8 @@ services:
       ui
       --chain=kovan
       --ui-interface=all
+      --jsonrpc-interface=all
+      --allow-ips=public
       --ws-hosts=all
       --ws-origins=all
       --ws-interface=all
